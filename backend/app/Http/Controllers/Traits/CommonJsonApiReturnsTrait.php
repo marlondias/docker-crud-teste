@@ -7,6 +7,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use stdClass;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -47,6 +48,9 @@ trait CommonJsonApiReturnsTrait
         } elseif ($exception instanceof ModelNotFoundException) {
             $statusCode = 404;
             $errorCause = 'Registro não encontrado.';
+        } elseif ($exception instanceof ValidationException) {
+            $statusCode = 400;
+            $errorCause = 'Erro ao validar query.';
         }
         $errorObj = $this->getErrorContent("{$baseMessage}. {$errorCause}", $exception);
         return response()->json($errorObj, $statusCode);
