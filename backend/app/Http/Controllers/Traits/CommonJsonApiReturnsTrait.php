@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Traits;
 
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use stdClass;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 trait CommonJsonApiReturnsTrait
 {
@@ -29,6 +33,23 @@ trait CommonJsonApiReturnsTrait
             $error->exception = $exception->getMessage();
         }
         return (object) ['error' => $error];
+    }
+
+    public function getJsonResponseFromException(string $baseMessage, \Exception $exception)
+    {
+        $statusCode = 500;
+        $errorCause = 'Falha durante processamento.';
+        if ($exception instanceof HttpException) {
+            $statusCode = $exception->getStatusCode();
+            if ($statusCode < 500) {
+                $errorCause = 'Entrada inválida na requisição.';
+            }
+        } elseif ($exception instanceof ModelNotFoundException) {
+            $statusCode = 404;
+            $errorCause = 'Registro não encontrado.';
+        }
+        $errorObj = $this->getErrorContent("{$baseMessage}. {$errorCause}", $exception);
+        return response()->json($errorObj, $statusCode);
     }
 
 }
