@@ -57,6 +57,15 @@ class Handler extends ExceptionHandler
                 ]
             ], 404);
         }
+        if ($exception instanceof HttpException) {
+            return response()->json((object) [
+                'error' => (object) [
+                    'message' => 'An error happened and was not handled by the application.',
+                    'exception' => $exception->getMessage(),
+                ]
+            ], $exception->getStatusCode());
+        }
+
         return parent::render($request, $exception);
     }
 }
