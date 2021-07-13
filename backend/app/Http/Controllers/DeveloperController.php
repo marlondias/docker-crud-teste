@@ -140,8 +140,8 @@ class DeveloperController extends Controller
         $query = $this->validate($request, [
             'page_size' => 'integer|min:1|max:50',
             'page' => 'integer|min:1',
-            'order_by_asc' => [Rule::in($this->orderableColumns)],
-            'order_by_desc' => [Rule::in($this->orderableColumns)],
+            'order_by' => [Rule::in($this->orderableColumns)],
+            'order_by_direction' => [Rule::in(['ASC', 'DESC'])],
             'search_term' => ['min:1', 'max:100', 'regex:/^[\w\d\s]+$/'],
         ]);
 
@@ -168,12 +168,12 @@ class DeveloperController extends Controller
     private function getDeveloperQueryBuilder($validatedQuery)
     {
         $orderByColumn = 'created_at';
+        if (property_exists($validatedQuery, 'order_by')) {
+            $orderByColumn = $validatedQuery->order_by;
+        }
         $orderByDirection = 'ASC';
-        if (property_exists($validatedQuery, 'order_by_desc')) {
-            $orderByColumn = $validatedQuery->order_by_desc;
-            $orderByDirection = 'DESC';
-        } else if (property_exists($validatedQuery, 'order_by_asc')) {
-            $orderByColumn = $validatedQuery->order_by_asc;
+        if (property_exists($validatedQuery, 'order_by_direction')) {
+            $orderByDirection = $validatedQuery->order_by_direction;
         }
         return Developer::orderBy($orderByColumn, $orderByDirection);
     }
@@ -212,7 +212,6 @@ class DeveloperController extends Controller
         return $queryBuilder;
     }
 
-
     /**
      * Obtém um array de objetos com informações sobre como usar cada opção de query.
      *
@@ -229,15 +228,15 @@ class DeveloperController extends Controller
                 'type' => 'integer',
                 'description' => 'Paginação. Número da página a ser acessada.',
             ],
-            'order_by_asc' => (object) [
+            'order_by' => (object) [
                 'type' => 'string',
                 'values' => $this->orderableColumns,
-                'description' => 'Ordenação. Nome da coluna pela qual os itens devem ser ordenados, em ordem crescente.',
+                'description' => 'Ordenação. Nome da coluna pela qual os itens devem ser ordenados.',
             ],
-            'order_by_desc' => (object) [
+            'order_by_direction' => (object) [
                 'type' => 'string',
-                'values' => $this->orderableColumns,
-                'description' => 'Ordenação. Nome da coluna pela qual os itens devem ser ordenados, em ordem decrescente.',
+                'values' => ['ASC', 'DESC'],
+                'description' => 'Ordenação. Direção da ordenação dos itens, usado apenas quando há "order_by" na query.',
             ],
             'search_term' => (object) [
                 'type' => 'string',
