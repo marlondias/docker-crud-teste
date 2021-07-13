@@ -15,10 +15,10 @@ class CreateDevelopersTable extends Migration
     {
         Schema::create('developers', function (Blueprint $table) {
             $table->id();
-            $table->string('nome');
+            $table->string('nome', 100);
             $table->char('sexo')->nullable();
             $table->integer('idade');
-            $table->string('hobby')->nullable();
+            $table->string('hobby', 500)->nullable();
             $table->date('data_nascimento');
             $table->timestamps();
         });
