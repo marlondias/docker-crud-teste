@@ -18,18 +18,24 @@ class DeveloperController extends Controller
 
 
     /**
-     * Display a listing of the resource.
+     * Exibe uma listagem de Developers com opções de ordenação, busca e paginação.
      *
+     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
     {
         try {
-            $validatedQuery = $this->validateIndexRequest($request);
+            $validatedQuery = $this->getValidatedIndexRequest($request);
             $developerBuilder = $this->getDeveloperQueryBuilder($validatedQuery);
             if (property_exists($validatedQuery, 'search_term')) {
                 $developerBuilder = $this->getQueryBuilderWithSearchClauses($developerBuilder, $validatedQuery->search_term);
             }
+
+            if ($developerBuilder->count() == 0) {
+                return response()->json($this->getErrorContent('Nenhum Desenvolvedor encontrado'), 404);
+            }
+
             $pageSize = $validatedQuery->page_size ?? 10;
             $developersPaginator = $developerBuilder->paginate($pageSize);
             $developers = $developersPaginator->getCollection();
@@ -49,17 +55,19 @@ class DeveloperController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Registrar um novo Developer na base de dados.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Developer $request)
+    public function store(Request $request)
     {
         try {
-
-            //TBD
-            $x = Developer::findOrFail(999);
+            $data = $this->getValidatedStoreUpdateRequest($request);
+            DB::beginTransaction();
+            $developer = Developer::create($data);
+            DB::commit();
+            return response()->json($this->getSuccessContent($developer), 201);
         } catch (\Exception $exception) {
             report($exception);
             return $this->getJsonResponseFromException('Não foi possível adicionar um Desenvolvedor', $exception);
@@ -67,7 +75,7 @@ class DeveloperController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Obtém dados completos de um Developer.
      *
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
@@ -75,7 +83,9 @@ class DeveloperController extends Controller
     public function show($id)
     {
         try {
-            //TBD
+            $developer = Developer::findOrFail($id);
+            $responseContent = $this->getSuccessContent($developer);
+            return response()->json($responseContent, 200);
         } catch (\Exception $exception) {
             report($exception);
             return $this->getJsonResponseFromException("Não foi possível obter dados do Desenvolvedor com ID {$id}", $exception);
@@ -83,23 +93,22 @@ class DeveloperController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Atualiza os dados de um Developer.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Developer $request, $id)
+    public function update(Request $request, $id)
     {
         try {
+            $data = $this->getValidatedStoreUpdateRequest($request);
             DB::beginTransaction();
             $developer = Developer::findOrFail($id);
-
-            //TBD
-
+            $developer->fill($data);
+            $developer->save();
             DB::commit();
-            $responseContent = $this->getSuccessContent([(object) $developer->toArray()]);
-            return response()->json($responseContent, 200);
+            return response()->json($this->getSuccessContent($developer), 200);
         } catch (\Exception $exception) {
             report($exception);
             return $this->getJsonResponseFromException("Não foi possível atualizar dados do Desenvolvedor com ID {$id}", $exception);
@@ -107,7 +116,7 @@ class DeveloperController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Exclui um Developer da base de dados.
      *
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
@@ -117,10 +126,10 @@ class DeveloperController extends Controller
         try {
             DB::beginTransaction();
             $developer = Developer::findOrFail($id);
-            $responseContent = $this->getSuccessContent([(object) $developer->toArray()]);
+            $responseContent = $this->getSuccessContent((object) $developer->toArray());
             $developer->delete();
             DB::commit();
-            return response()->json($responseContent, 200);
+            return response()->json($responseContent, 204);
         } catch (\Exception $exception) {
             DB::rollBack();
             report($exception);
@@ -135,7 +144,7 @@ class DeveloperController extends Controller
      * @param Request $request
      * @throws \Illuminate\Validation\ValidationException
      */
-    private function validateIndexRequest(Request $request)
+    private function getValidatedIndexRequest(Request $request)
     {
         $query = $this->validate($request, [
             'page_size' => 'integer|min:1|max:50',
@@ -243,6 +252,26 @@ class DeveloperController extends Controller
                 'description' => 'Busca. Termo a ser procurado nos atributos da entidade.',
             ],
         ];
+    }
+
+    /**
+     * Valida os dados passados para request de store ou update, com a diferenciação necessária.
+     *
+     * @param Request $request
+     * @return array
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    private function getValidatedStoreUpdateRequest(Request $request)
+    {
+        $requiredPrefix = $request->method() === 'POST' ? 'required|' : '';
+        $validatedData = $this->validate($request, [
+            'nome' => $requiredPrefix . 'max:100',
+            'idade' => $requiredPrefix . 'integer|min:1|max:200',
+            'data_nascimento' => $requiredPrefix . 'date_format:Y-m-d',
+            'sexo' => 'nullable',
+            'hobby' => 'nullable|max:500',
+        ]);
+        return $validatedData;
     }
 
 }

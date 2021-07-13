@@ -16,10 +16,6 @@ trait CommonJsonApiReturnsTrait
 
     public function getSuccessContent($data, object $metadata = null)
     {
-        if (! is_array($data) && ! $data instanceof Collection) {
-            throw new Exception('Invalid type for argument "data".');
-        }
-
         return (object) [
             'data' => ($data instanceof Collection) ? $data->toArray() : $data,
             'metadata' => $metadata
