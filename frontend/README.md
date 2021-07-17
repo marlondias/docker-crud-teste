@@ -1,4 +1,4 @@
-# gazin-frontend
+# frontend
 
 ## Project setup
 ```
