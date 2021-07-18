@@ -7,7 +7,7 @@
     <AlertMessagesContainer ref="alertMessageContainer" />  
   </div>
   <div class="modals-overlay">
-    <span>xxx</span>
+    <ModalConfirmDelete :developer-id="123" />
   </div>
 </template>
 
@@ -15,12 +15,13 @@
 import axios from 'axios'
 import List from './components/DevelopersList/List.vue'
 import AlertMessagesContainer from './components/Alert/AlertMessagesContainer.vue'
+import ModalConfirmDelete from './components/Modals/DeveloperConfirmDelete.vue'
 
 export default {
   name: 'App',
 
   components: {
-    List, AlertMessagesContainer
+    List, AlertMessagesContainer, ModalConfirmDelete
   },
 
   data() {
@@ -64,7 +65,6 @@ export default {
   },
 
 }
-
 </script>
 
 <style>
@@ -149,7 +149,7 @@ export default {
     flex-flow: column nowrap;
     justify-content: center;
     align-items: center;
-    padding-bottom: 50px;
+    padding: 0 20px 50px 20px;
     background-color: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
