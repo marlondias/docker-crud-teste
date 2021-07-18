@@ -1,38 +1,42 @@
 <template>
   <div class="main-container">
     <h1 class="app-title">Developers CRUD</h1>
-
-
-    <List />
+    <List @apiFeedback="triggerAlertApiFeedback" />
+  </div>
+  <div class="alerts-overlay">
+    <AlertMessagesContainer ref="alertMessageContainer" />  
+  </div>
+  <div class="modals-overlay">
+    <span>xxx</span>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
 import List from './components/DevelopersList/List.vue'
-//import AlertMessagesContainer from './components/AlertMessagesContainer.vue'
-
-const apiBaseUrl = 'http://localhost:8000/api';
-//const apiBearerToken = 'myToken123';
+import AlertMessagesContainer from './components/Alert/AlertMessagesContainer.vue'
 
 export default {
   name: 'App',
 
   components: {
-    List
+    List, AlertMessagesContainer
   },
 
   data() {
     return {
       api: axios.create({
-        baseURL: apiBaseUrl,
+        baseURL: process.env.VUE_APP_API_BASE_URL,
         timeout: 10000,
-        //headers: {'Authorization': `Bearer ${apiBearerToken}`},
       }),
     }
   },
 
   methods: {
+    triggerAlertApiFeedback(event) {
+      this.$refs.alertMessageContainer.addAlertFromApiFeedBack(event.status, event.content);
+    },
+
     createDeveloper() {
       this.api.post(`/developers`);
     },
@@ -55,7 +59,8 @@ export default {
 
     confirmDeveloperDelete() {
       alert('Certeza delete?');
-    }
+    },
+
   },
 
 }
@@ -75,9 +80,10 @@ export default {
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
     background-color: #def4f0;
-    xbackground-image: url('../assets/depositphotos_81589834-c.png');
+    background-image: url('./assets/bg-dev-pattern.png');
     background-repeat: repeat;
     background-size: 200px;
+    position: relative;
   }
   button {
     font-size: 15px;
@@ -113,5 +119,39 @@ export default {
   .app-title {
     margin-bottom: 35px;
     text-align: center;
+  }
+  ul {
+    list-style-type: none;
+  }
+  .background-color-blend {
+    background-color: rgb(222 244 241 / 80%);
+  }
+  .alerts-overlay {
+    position: fixed;
+    bottom: 20px;
+    right: 15px;
+    margin-left: auto;
+    width: calc(100% - 30px);
+    max-width: 600px;
+    height: 100vh;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-end;
+    pointer-events: none;
+  }
+  .modals-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 50px;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
   }
 </style>

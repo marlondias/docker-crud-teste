@@ -35,7 +35,6 @@ export default {
 
 <style>
 .alert{
-  width: 90%;
   margin: 20px auto;
   padding: 20px 50px 20px 15px;
   position: relative;

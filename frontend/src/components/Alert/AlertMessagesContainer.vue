@@ -20,23 +20,7 @@ export default {
 
   data() {
     return {
-      'alerts': [
-        {
-          'message': 'Um alerta 0',
-        },
-        {
-          'message': 'Um alerta 1',
-          'color': 'warning',
-        },
-        {
-          'message': 'Um alerta 2',
-          'color': 'danger',
-        },
-        {
-          'message': 'Um alerta 3',
-          'color': 'success',
-        },
-      ],
+      alerts: [],
     }
   },
 
@@ -44,6 +28,14 @@ export default {
     handleDismissedAlert(event)
     {
       this.alerts.splice(event.id, 1);
+    },
+    addAlertFromApiFeedBack(status, content) {
+      let color = 'success';
+      if (status >= 400) { color = 'danger'; } 
+      else if (status >= 300) { color = 'warning'; }
+      let message = (content.message && content.message.length > 0) 
+        ? content.message : 'Algo inesperado ocorreu.';
+      this.alerts.push({color: color, message: message});
     }
   },
 
@@ -51,7 +43,7 @@ export default {
 </script>
 
 <style>
-ul {
-  list-style-type: none;
+ul > li {
+  pointer-events: all;
 }
 </style>
