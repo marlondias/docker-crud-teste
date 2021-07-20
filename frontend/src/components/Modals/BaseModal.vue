@@ -8,7 +8,7 @@
       <slot></slot>
     </div>
     <div class="confirmation">
-      <button @click.stop="$emit('confirm-modal-action')">{{confirmationText || 'OK'}}</button>
+      <button :disabled="(disableConfirmation && disableConfirmation === true)" @click.stop="$emit('confirm-modal-action')">{{confirmationText || 'OK'}}</button>
     </div>
   </div>
 </template>
@@ -23,6 +23,10 @@ export default {
     },
     confirmationText: {
       type: String,
+      required: false
+    },
+    disableConfirmation: {
+      type: Boolean,
       required: false
     }
   },
