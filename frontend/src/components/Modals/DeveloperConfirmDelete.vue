@@ -2,6 +2,7 @@
   <base-modal 
     title="Deletar este desenvolvedor ?" 
     confirmation-text="Deletar"
+    :disable-confirmation="isLoading"
     @close-modal="$emit('modal-closed')"
     @confirm-modal-action="deleteDeveloper"
   >

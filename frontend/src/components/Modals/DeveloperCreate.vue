@@ -2,6 +2,7 @@
   <base-modal 
     title="Novo desenvolvedor" 
     confirmation-text="Salvar"
+    :disable-confirmation="isLoading"
     @close-modal="$emit('modal-closed')"
     @confirm-modal-action="createDeveloper"
   >
@@ -13,8 +14,8 @@
       <label for="inputSexo">Sexo</label>
       <select id="inputSexo" v-model="sexo">
         <option value="">Não informado</option>
-        <option value="m">Masculino</option>
-        <option value="f">Feminino</option>
+        <option value="M">Masculino</option>
+        <option value="F">Feminino</option>
       </select>
     </div>
     <div class="form-input">

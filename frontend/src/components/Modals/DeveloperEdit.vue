@@ -1,6 +1,8 @@
 <template>
   <base-modal 
-    title="Edição de desenvolvedor" 
+    title="Edição de desenvolvedor"
+    confirmation-text="Modificar"
+    :disable-confirmation="isLoading"
     @close-modal="$emit('modal-closed')"
     @confirm-modal-action="updateDeveloper"
   >
@@ -12,8 +14,8 @@
       <label for="inputSexo">Sexo</label>
       <select id="inputSexo" v-model="sexo">
         <option value="">Não informado</option>
-        <option value="m">Masculino</option>
-        <option value="f">Feminino</option>
+        <option value="M">Masculino</option>
+        <option value="F">Feminino</option>
       </select>
     </div>
     <div class="form-input">
@@ -48,7 +50,7 @@ export default {
       required: true
     }
   },
-
+  
   data() {
     return {
       api: axios.create({
@@ -56,33 +58,44 @@ export default {
         timeout: 10000,
       }),
       isLoading: false,
-      nome: '',
-      sexo: '',
-      nascimento: '',
-      idade: '',
-      hobby: '',
-    }
-  },
-
-  watch: {
-    developer: {
-      handler(newValue, oldValue) {
-        console.log('x', newValue, oldValue);
-        this.nome = newValue.nome;
-        this.sexo = newValue.sexo;
-        this.nascimento = newValue.data_nascimento;
-        this.idade = newValue.idade;
-        this.hobby = newValue.hobby;
-      },
-      deep: true,
+      nome: this.developer.nome || '',
+      sexo:  this.developer.sexo || '',
+      nascimento: this.developer.data_nascimento || '',
+      idade: this.developer.idade || '',
+      hobby: this.developer.hobby || '',
     }
   },
 
   methods: {
     updateDeveloper() {
-      //
-    }
-  }
+      let formData = {
+        nome: this.nome,
+        sexo: this.sexo,
+        data_nascimento: this.nascimento,
+        idade: this.idade,
+        hobby: this.hobby,
+      };
+      this.isLoading = true;
+      this.api.put(`/developers/${this.developer.id}`, formData)
+      .then((response) => {
+        this.$emit('api-feedback', {status: response.status, content: {message: 'Desenvolvedor modificado!'}});
+        this.$emit('should-updated-developers');
+        this.$emit('modal-closed');
+      })
+      .catch((error) => {
+        let statusCode = 500;
+        let errorContent = null;
+        if (error.response) {
+          statusCode = error.response.status;
+          errorContent = (error.response.data) ? error.response.data.error : null;
+        }
+        this.$emit('api-feedback', {status: statusCode, content: errorContent});
+      })
+      .then(() => {
+        this.isLoading = false;
+      });
+    },
+  },
 
 }
 </script>
