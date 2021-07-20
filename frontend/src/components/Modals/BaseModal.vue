@@ -2,24 +2,30 @@
   <div class="modal">
     <div class="header">
       <h3>{{title}}</h3>
-      <button class="close-button"><i class="fas fa-times"></i></button>
+      <button class="close-button" @click.stop="$emit('close-modal')"><i class="fas fa-times"></i></button>
     </div>
     <div class="body">
       <slot></slot>
     </div>
+    <div class="confirmation">
+      <button @click.stop="$emit('confirm-modal-action')">{{confirmationText || 'OK'}}</button>
+    </div>
   </div>
-
-
 </template>
 
 <script>
 export default {
+  emits: ['close-modal', 'confirm-modal-action'],
   props: {
     title: {
       type: String,
       required: true
+    },
+    confirmationText: {
+      type: String,
+      required: false
     }
-  }
+  },
 }
 </script>
 
@@ -51,6 +57,15 @@ export default {
 }
 .body {
   padding: 15px;
+}
+.confirmation {
+  padding: 10px 15px;
   border-radius: 0 0 6px 6px;
+  text-align: center;
+}
+.confirmation button {
+  padding: 6px 15px;
+  background-color: darkgreen;
+  color: rgba(255, 255, 255, 0.8);
 }
 </style>

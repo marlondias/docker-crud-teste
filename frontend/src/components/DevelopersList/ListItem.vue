@@ -10,6 +10,9 @@
       <button class="btn btn-info" @click.stop="handleClickShowInfo">
         <i class="fas fa-fw fa-info"></i>
       </button>
+      <button class="btn btn-info" @click.stop="handleClickEdit">
+        <i class="fas fa-fw fa-edit"></i>
+      </button>
       <button class="btn btn-danger" @click.stop="handleClickDelete">
         <i class="fas fa-fw fa-trash-alt"></i>
       </button>
@@ -20,7 +23,7 @@
 <script>
 export default {
 
-  emits: ['developerShowInfo', 'developerDelete'],
+  emits: ['developer-show-info', 'developer-edit', 'developer-delete'],
 
   props: {
     developer: {
@@ -31,10 +34,13 @@ export default {
 
   methods: {
     handleClickShowInfo() {
-      this.$emit('developerShowInfo', {developer: this.developer});
+      this.$emit('developer-show-info', {developerId: this.developer.id});
+    },
+    handleClickEdit() {
+      this.$emit('developer-edit', {developerId: this.developer.id});
     },
     handleClickDelete() {
-      this.$emit('developerDelete', {developer: this.developer});
+      this.$emit('developer-delete', {developerId: this.developer.id});
     },
   }
 

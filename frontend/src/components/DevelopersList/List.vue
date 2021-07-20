@@ -1,22 +1,32 @@
 <template>
   <div class="background-color-blend">
-    <DisplayControls @displayControlsChanged="updateQueryDisplay" />
-    <SearchControls @searchRequested="updateQuerySearch" />
+    <DisplayControls @display-controls-changed="updateQueryDisplay" />
+    <SearchControls @search-requested="updateQuerySearch" />
     <div class="caixa-botao-cadastro">
-      <button><i class="fas fa-plus"></i>&nbsp;&nbsp;Novo</button>
+      <button @click.stop="$emit('developer-create')"><i class="fas fa-plus"></i>&nbsp;&nbsp;Novo</button>
     </div>
-    <div v-if="developers.length > 0">
-      <ul>
-        <li v-for="developer in developers" :key="developer.id">
-          <ListItem :developer="developer" />
-        </li>
-      </ul>
-      <PaginationControls v-if="metadata !== null" :pagination-data="metadata.pagination" @currentPageChanged="updateQueryPagination" />
+    <div v-show="isLoading" class="loading">
+      <img src="../../assets/loading.gif">
     </div>
-    <div v-else class="sem-itens">
-      Não foram encontrados itens para exibição.
+    <div v-show="!isLoading">
+      <div v-if="developers.length > 0">
+        <ul>
+          <li v-for="developer in developers" :key="developer.id">
+            <ListItem :developer="developer" 
+              @developer-show-info="$emit('developer-show-info', $event)"
+              @developer-edit="$emit('developer-edit', $event)"
+              @developer-delete="$emit('developer-delete', $event)" />
+          </li>
+        </ul>
+        <PaginationControls 
+          v-if="metadata !== null" 
+          :pagination-data="metadata.pagination" 
+          @current-page-changed="updateQueryPagination" />
+      </div>
+      <div v-else class="sem-itens">
+        Não foram encontrados itens para exibição.
+      </div>
     </div>
-
   </div>
 </template>
 
@@ -35,9 +45,7 @@ export default {
     ListItem
   },
 
-  emits: ['apiFeedback', 'developerShowInfo', 'developerDelete'],
-
-  props: {},
+  emits: ['api-feedback', 'developer-create', 'developer-show-info', 'developer-edit', 'developer-delete'],
 
   data() {
     return {
@@ -45,6 +53,7 @@ export default {
         baseURL: process.env.VUE_APP_API_BASE_URL,
         timeout: 10000,
       }),
+      isLoading: false,
       developers: [],
       metadata: null,
       queryDisplay: '',
@@ -76,6 +85,7 @@ export default {
       if (fullQuery.length > 0) {
         uri += `?${fullQuery}`.replace('?&', '?');
       }
+      this.isLoading = true;
       this.api.get(uri)
       .then((response) => {
         this.developers = response.data.data;
@@ -90,7 +100,10 @@ export default {
           statusCode = error.response.status;
           errorContent = (error.response.data) ? error.response.data.error : null;
         }
-        this.$emit('apiFeedback', {status: statusCode, content: errorContent});
+        this.$emit('api-feedback', {status: statusCode, content: errorContent});
+      })
+      .then(() => {
+        this.isLoading = false;
       });
     },
   },
@@ -119,4 +132,14 @@ ul {
   padding: 50px 30px;
   font-weight: bold;
 }
+.loading {
+  margin: 50px 0;
+  padding: 30px;
+  text-align: center;
+}
+.loading img {
+  max-width: 100px;
+  height: auto;
+}
+
 </style>

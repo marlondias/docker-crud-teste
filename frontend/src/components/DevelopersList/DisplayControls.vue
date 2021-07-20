@@ -31,7 +31,7 @@
 
 <script>
 export default {
-  emits: ['displayControlsChanged'],
+  emits: ['display-controls-changed'],
 
   data() {
     return {
@@ -66,7 +66,7 @@ export default {
       return query;
     },
     emitDisplayControlsChanged() {
-      this.$emit('displayControlsChanged', {query: this.getIndexQueryString()});
+      this.$emit('display-controls-changed', {query: this.getIndexQueryString()});
     }
   },
 

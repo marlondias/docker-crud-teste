@@ -9,7 +9,7 @@
 
 <script>
 export default {
-  emits: ['searchRequested'],
+  emits: ['search-requested'],
 
   data() {
     return {
@@ -20,7 +20,7 @@ export default {
   methods: {
     emitSearchRequested() {
       this.searchTerm = this.searchTerm.trim();
-      this.$emit('searchRequested', {query: `&search_term=${this.searchTerm}`});
+      this.$emit('search-requested', {query: `&search_term=${this.searchTerm}`});
     },
   }
 

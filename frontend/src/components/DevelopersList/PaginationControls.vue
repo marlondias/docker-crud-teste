@@ -16,7 +16,7 @@
 
 <script>
 export default {
-  emits: ['currentPageChanged'],
+  emits: ['current-page-changed'],
 
   props: {
     paginationData: {
@@ -59,7 +59,7 @@ export default {
       this.currentPage++;
     },
     emitCurrentPageChanged() {
-      this.$emit('currentPageChanged', {query: `&page=${this.currentPage}`});
+      this.$emit('current-page-changed', {query: `&page=${this.currentPage}`});
     },
   },
 

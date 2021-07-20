@@ -1,67 +1,58 @@
 <template>
   <div class="main-container">
     <h1 class="app-title">Developers CRUD</h1>
-    <List @apiFeedback="triggerAlertApiFeedback" />
+    <List 
+      ref="developerList"
+      @api-feedback="triggerAlertApiFeedback" 
+      @developer-create="triggerDeveloperCreate"
+      @developer-show-info="triggerDeveloperShowInfo"
+      @developer-edit="triggerDeveloperEdit"
+      @developer-delete="triggerDeveloperDelete"
+    />
   </div>
+
+  <ModalsContainer 
+    ref="modalsContainer" 
+    @api-feedback="triggerAlertApiFeedback"
+    @should-updated-developers="triggerUpdateDeveloperList" 
+  />
+
   <div class="alerts-overlay">
     <AlertMessagesContainer ref="alertMessageContainer" />  
-  </div>
-  <div class="modals-overlay">
-    <ModalConfirmDelete :developer-id="123" />
   </div>
 </template>
 
 <script>
-import axios from 'axios'
 import List from './components/DevelopersList/List.vue'
+import ModalsContainer from './components/Modals/ModalsContainer.vue'
 import AlertMessagesContainer from './components/Alert/AlertMessagesContainer.vue'
-import ModalConfirmDelete from './components/Modals/DeveloperConfirmDelete.vue'
 
 export default {
   name: 'App',
 
   components: {
-    List, AlertMessagesContainer, ModalConfirmDelete
-  },
-
-  data() {
-    return {
-      api: axios.create({
-        baseURL: process.env.VUE_APP_API_BASE_URL,
-        timeout: 10000,
-      }),
-    }
+    List, ModalsContainer, AlertMessagesContainer
   },
 
   methods: {
     triggerAlertApiFeedback(event) {
       this.$refs.alertMessageContainer.addAlertFromApiFeedBack(event.status, event.content);
     },
-
-    createDeveloper() {
-      this.api.post(`/developers`);
+    triggerDeveloperCreate() {
+      this.$refs.modalsContainer.showCreate();
     },
-
-    getDeveloperInfo(id) {
-      this.api.get(`/developers/${id}`);
+    triggerDeveloperShowInfo(event) {
+      this.$refs.modalsContainer.showDetails(event.developerId);
     },
-
-    updateDeveloper(id) {
-      this.api.put(`/developers/${id}`);
+    triggerDeveloperEdit(event) {
+      this.$refs.modalsContainer.showEdit(event.developerId);
     },
-
-    deleteDeveloper(id) {
-      this.api.delete(`/developers/${id}`);
+    triggerDeveloperDelete(event) {
+      this.$refs.modalsContainer.showConfirmDelete(event.developerId);
     },
-
-    openModalDeveloperInfo() {
-      alert('Modal info');
-    },
-
-    confirmDeveloperDelete() {
-      alert('Certeza delete?');
-    },
-
+    triggerUpdateDeveloperList() {
+      this.$refs.developerList.triggerListUpdate();
+    }
   },
 
 }
@@ -139,19 +130,31 @@ export default {
     justify-content: flex-end;
     pointer-events: none;
   }
-  .modals-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    flex-flow: column nowrap;
-    justify-content: center;
-    align-items: center;
-    padding: 0 20px 50px 20px;
-    background-color: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+
+  .form-input {
+    margin-bottom: 13px;
   }
+  .form-input label {
+    display: block;
+    font-weight: bold;
+  }
+  .form-input input,
+  .form-input textarea,
+  .form-input select {
+    display: block;
+    width: 100%;
+    margin-top: 4px;
+    font-size: 15px;
+    padding: 5px 10px;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    background-color: transparent;
+    color: rgba(0, 0, 0, 0.8);
+  }
+  .form-input input:focus,
+  .form-input textarea:focus,
+  .form-input select:focus {
+    border-color: rgba(0, 0, 0, 0.8);
+  }
+
+
 </style>
