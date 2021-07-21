@@ -14,7 +14,7 @@
 */
 
 $router->get('/', function () use ($router) {
-    return 'Você está na API do CRUD de desenvolvedores Gazin. Acesse "GET /api/developers" para mais ações.';
+    return 'Você está na API do CRUD de desenvolvedores. Acesse "GET /api/developers" para mais ações.';
 });
 
 $router->group(['prefix' => 'api/developers', 'as' => 'developers'], function() use ($router) {
