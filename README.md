@@ -3,8 +3,9 @@
 ## Instalação
 * Este projeto usa containers Docker e foi testado com Docker Engine 20.10.5 e Compose 1.29.
 * Certifique-se de encerrar aplicações que estejam usando as portas 3306, 8000 e 8080.
-* Abra um terminal na raiz deste projeto e execute "docker-compose up".
-* Após o fim da composição, acesse a "http://localhost:8080" em qualquer navegador web (Chrome).
+* Abra um terminal na raiz deste projeto e execute "docker-compose up --build -d".
+* Após a composição, execute "docker-compose exec backend-app php artisan migrate:fresh --seed --force"
+* Acesse a "http://localhost:8080" em qualquer navegador web (Chrome).
 * Pronto, o CRUD estará disponível e funcional.
 
 
