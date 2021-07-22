@@ -197,7 +197,11 @@ class DeveloperController extends Controller
      */
     private function getQueryBuilderWithSearchClauses(Builder $queryBuilder, string $searchTerm)
     {
-        $words = explode(' ', Str::upper($searchTerm));
+        $searchTerm = Str::upper($searchTerm);
+        $searchTerm = preg_replace("/[^[:alnum:][:space:]]/u", ' ', $searchTerm);
+        $searchTerm = preg_replace("/\s+/", ' ', $searchTerm);
+        $words = Str::contains($searchTerm, ' ') ? explode(' ', $searchTerm) : [$searchTerm];
+
         foreach ($words as $word) {
             $queryBuilder->orWhereRaw('UPPER("nome") LIKE ?', ["%{$word}%"]);
             $queryBuilder->orWhereRaw('UPPER("hobby") LIKE ?', ["%{$word}%"]);
@@ -211,11 +215,11 @@ class DeveloperController extends Controller
             $queryBuilder->orWhereYear('data_nascimento', $number);
         }
 
-        if (in_array(Str::upper($searchTerm), ['M', 'MASC', 'MASCULINO'])) {
+        if (in_array($searchTerm, ['M', 'MASC', 'MASCULINO'])) {
             $queryBuilder->orWhere('sexo', 'M');
         }
 
-        if (in_array(Str::upper($searchTerm), ['F', 'FEM', 'FEMININO'])) {
+        if (in_array($searchTerm, ['F', 'FEM', 'FEMININO'])) {
             $queryBuilder->orWhere('sexo', 'F');
         }
 
