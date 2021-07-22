@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Developer;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Date;
 
 class DeveloperFactory extends Factory
 {
@@ -15,12 +16,14 @@ class DeveloperFactory extends Factory
         $hobbyActivity = $this->faker->randomElement(['Ciclismo', 'Caminhada', 'Artesanato', 'Fotografia']);
         $hobbyStyle = $this->faker->randomElement(['radical', 'experimental', 'relaxante']);
         $hobbyPlace = $this->faker->randomElement(['montanhas', 'desertos', 'florestas']);
+        $birthDate = $this->faker->date();
+        $age = Date::createFromFormat('Y-m-d', $birthDate)->diffInYears(Date::now());
     	return [
             'nome' => $this->faker->name($isMale ? 'male' : 'female'),
             'sexo' => $isMale ? 'M' : 'F',
-            'idade' => $this->faker->numberBetween(0, 99),
+            'data_nascimento' => $birthDate,
+            'idade' => $age,
             'hobby' => "{$hobbyActivity} {$hobbyStyle} em {$hobbyPlace}",
-            'data_nascimento' => $this->faker->date()
     	];
     }
 }
