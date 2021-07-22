@@ -23,10 +23,6 @@
       <input type="date" id="inputNasc" min="1900-01-01" v-model="nascimento">
     </div>
     <div class="form-input">
-      <label for="inputIdade">Idade</label>
-      <input type="number" id="inputIdade" min="1" max="200" v-model="idade">
-    </div>
-    <div class="form-input">
       <label for="inputHobby">Hobby</label>
       <textarea id="inputHobby" maxlength="500" rows="3" v-model="hobby"></textarea>
     </div>
@@ -54,7 +50,6 @@ export default {
       nome: '',
       sexo: '',
       nascimento: '',
-      idade: '',
       hobby: '',
     }
   },
@@ -65,7 +60,6 @@ export default {
         nome: this.nome,
         sexo: this.sexo,
         data_nascimento: this.nascimento,
-        idade: this.idade,
         hobby: this.hobby,
       }
       this.isLoading = true;
