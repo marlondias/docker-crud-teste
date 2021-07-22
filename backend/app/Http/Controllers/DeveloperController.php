@@ -6,6 +6,7 @@ use App\Http\Controllers\Traits\CommonJsonApiReturnsTrait;
 use App\Models\Developer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -266,11 +267,15 @@ class DeveloperController extends Controller
         $requiredPrefix = $request->method() === 'POST' ? 'required|' : '';
         $validatedData = $this->validate($request, [
             'nome' => $requiredPrefix . 'max:100',
-            'idade' => $requiredPrefix . 'integer|min:1|max:200',
             'data_nascimento' => $requiredPrefix . 'date_format:Y-m-d',
             'sexo' => 'nullable',
             'hobby' => 'nullable|max:500',
         ]);
+        if (array_key_exists('data_nascimento', $validatedData)) {
+            $dataNascimento = Date::createFromFormat('Y-m-d', $validatedData['data_nascimento']);
+            $idadeHoje = $dataNascimento->diffInYears(Date::now());
+            $validatedData = array_merge($validatedData, ['idade' => $idadeHoje]);
+        }
         return $validatedData;
     }
 
