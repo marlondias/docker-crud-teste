@@ -5,7 +5,9 @@ use Laravel\Lumen\Testing\DatabaseTransactions;
 use App\Http\Controllers\DeveloperController;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Date;
 use App\Models\Developer;
+use Illuminate\Support\Str;
 
 class DeveloperControllerTest extends TestCase
 {
@@ -78,6 +80,7 @@ class DeveloperControllerTest extends TestCase
 
     /**
      * @test
+     * @depends index_returns_data_as_array
      */
     public function index_with_search_term_finds_relevant_items()
     {
@@ -100,33 +103,56 @@ class DeveloperControllerTest extends TestCase
     /**
      * @test
      */
-    public function store_adds_developer_and_returns_status_200_when_data_is_valid()
+    public function store_adds_developer_and_returns_status_201()
     {
-        //
+        $randomPastDate = Date::now()->subMonths(rand(1, 120))->addDays(rand(1, 20))->format('Y-m-d');
+        $validInput = [
+            'nome' => 'nome-teste-' . rand(1, 999),
+            'sexo' => collect(['m', 'f', ''])->shuffle()->first(),
+            'data_nascimento' => $randomPastDate,
+        ];
+        $request = new Request($validInput);
+        $response = (new DeveloperController())->store($request);
+        $this->assertInstanceOf(JsonResponse::class, $response, 'Resposta deve ser JSON');
+        $this->assertEquals(201, $response->getStatusCode());
+        $developer = Developer::first();
+        $this->assertIsObject($developer, 'Developer não foi encontrado após criação.');
     }
 
     /**
      * @test
      */
-    public function store_does_not_add_developer_and_returns_400_when_data_is_invalid()
+    public function update_changes_developer_and_returns_status_200()
     {
-        //
+        $randomPastDate = Date::now()->subMonths(rand(1, 120))->addDays(rand(1, 20))->format('Y-m-d');
+        $validInput = [
+            'nome' => 'nome-teste-' . rand(1, 999),
+            'sexo' => collect(['m', 'f'])->shuffle()->first(),
+            'data_nascimento' => $randomPastDate,
+        ];
+        $request = new Request($validInput);
+
+        $developer = Developer::factory()->create();
+
+        $response = (new DeveloperController())->update($request, $developer->id);
+        $this->assertInstanceOf(JsonResponse::class, $response, 'Resposta deve ser JSON');
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $changedDeveloper = Developer::find($developer->id);
+        $this->assertIsObject($changedDeveloper, 'Developer deve continuar existindo após update');
+        $this->assertEquals(Str::title($validInput['nome']), $changedDeveloper->nome);
+        $this->assertEquals($validInput['data_nascimento'], $changedDeveloper->data_nascimento);
+        $this->assertEquals(Str::upper($validInput['sexo']), $changedDeveloper->sexo);
     }
 
     /**
      * @test
      */
-    public function update_changes_developer_and_returns_status_200_when_data_is_valid()
+    public function update_returns_404_when_id_not_found()
     {
-        //
-    }
-
-    /**
-     * @test
-     */
-    public function update_does_not_change_developer_and_returns_400_when_data_is_invalid()
-    {
-        //
+        $anyId = rand(1, 100);
+        $response = (new DeveloperController())->update(new Request(), $anyId);
+        $this->assertEquals(404, $response->getStatusCode());
     }
 
     /**
@@ -146,7 +172,7 @@ class DeveloperControllerTest extends TestCase
      */
     public function delete_returns_status_400_when_id_not_found()
     {
-        $this->markTestSkipped(); // Pedido diz que o código é 400;
+        // Pedido diz que o código é 400, mas 404 é mais informativo e padrão.
         $anyId = rand(1, 100);
         $response = (new DeveloperController())->destroy($anyId);
         $this->assertEquals(404, $response->getStatusCode());
