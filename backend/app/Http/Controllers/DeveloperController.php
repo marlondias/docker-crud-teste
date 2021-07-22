@@ -203,8 +203,8 @@ class DeveloperController extends Controller
         $words = Str::contains($searchTerm, ' ') ? explode(' ', $searchTerm) : [$searchTerm];
 
         foreach ($words as $word) {
-            $queryBuilder->orWhereRaw('UPPER("nome") LIKE ?', ["%{$word}%"]);
-            $queryBuilder->orWhereRaw('UPPER("hobby") LIKE ?', ["%{$word}%"]);
+            $queryBuilder->orWhereRaw('UPPER(nome) LIKE ?', ["%{$word}%"]);
+            $queryBuilder->orWhereRaw('UPPER(hobby) LIKE ?', ["%{$word}%"]);
         }
 
         $number = intval($searchTerm);
